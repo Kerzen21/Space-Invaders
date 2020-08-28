@@ -1,0 +1,19 @@
+Space Invader Project
+- Space Invader Game, like the classic Atari ones.
+- You control a spaceship on the bottom of the screen, trying to defeat waves of incoming aliens.
+- You have 3 lives after your first death.
+- You are "one-shot"
+- 4 little indestructable barricades (may be destructable further on in the process)
+- Power ups:
+    - Faster Movement
+    - Attack Speed
+    - Triple-Shot
+    - Indestructable
+- Enemy starships move from lef tto right, coming in closer to the player
+- If they reach the bottom level(height of player), the game is lost
+- Player may move left(a) and right(d) and may shoot by himself(Spacebar), -->Attack Speed is capped(0.6 sec)
+- Game goes infintly long, but movement speed of enemies gets higher every wave
+- Menu  with:
+    - Start
+    - Options
+    - Exit
