@@ -14,6 +14,7 @@ class Window(qw.QWidget):
     def __init__(self):
         super().__init__()
         
+        self.player_shot_is_active = False
 
         self.scene = qw.QGraphicsScene()
         self.view = qw.QGraphicsView()
@@ -31,8 +32,9 @@ class Window(qw.QWidget):
         self.view.scale(1, -1)
         self.player = self.addPixmap(self.img_player)
         
-
-        
+        self.img_player_shot = qg.QPixmap(str(SPRITES_DIR.joinpath("player_shot.png")))
+        self.player_shot = self.addPixmap(self.img_player_shot)
+        self.player_shot.hide()
 
         self.timer = qc.QTimer()
         self.timer.setInterval(50)# ms
@@ -42,8 +44,10 @@ class Window(qw.QWidget):
 
         self.active_keys = set()
     
-
-
+        self.shot_timer = qc.QTimer()
+        self.shot_timer.setInterval(16)
+        self.shot_timer.timeout.connect(self.player_shot_movement)
+        self.shot_timer.start()
 
     def addPixmap(self, pixmap):
         transformation = qg.QTransform().scale(1, -1)
@@ -59,6 +63,18 @@ class Window(qw.QWidget):
     def keyReleaseEvent(self, event):
         self.active_keys.remove(event.key())
     
+
+
+
+    def player_shot_movement(self):
+        if self.player_shot_is_active == True:
+            self.player_shot.setY(self.player_shot.y()+5)
+        if self.player_shot.y() >= self.scene.height():
+            self.player_shot_is_active = False
+            self.player_shot.hide()
+           
+        # check something... ==> player_shot_is_active = False Ist der Schuss Valid
+
     def handleActiveKeys(self):
 
         print("X:", self.scene.width())
@@ -68,7 +84,15 @@ class Window(qw.QWidget):
             self.player.setX(self.player.x()+5)
         if qc.Qt.Key_A in self.active_keys and self.player.x() > 0:
             self.player.setX(self.player.x()-5)
-        #Add Spacebar later!
+        if qc.Qt.Key_Space in self.active_keys and self.player_shot.isVisible() == False:
+            #self.img_player_shot.width() 
+            self.player_shot.setX(self.player.x()+self.img_player.width()/2 - self.img_player_shot.width()/2) 
+            self.player_shot.setY(self.player.y() + self.img_player_shot.height())
+            self.player_shot.show()
+            self.player_shot.setY(0)
+            self.player_shot_is_active = True
+            
+        
 
 
 
