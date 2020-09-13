@@ -14,7 +14,7 @@ class Window(qw.QWidget):
     def __init__(self):
         super().__init__()
         
-        self.player_shot_is_active = False
+        
 
         self.scene = qw.QGraphicsScene()
         self.view = qw.QGraphicsView()
@@ -32,22 +32,34 @@ class Window(qw.QWidget):
         self.view.scale(1, -1)
         self.player = self.addPixmap(self.img_player)
         
-        self.img_player_shot = qg.QPixmap(str(SPRITES_DIR.joinpath("player_shot.png")))
-        self.player_shot = self.addPixmap(self.img_player_shot)
-        self.player_shot.hide()
+        
 
+
+        self.player_shot = Shot(self, True)
+
+
+
+
+
+
+
+
+        self.shot_timer = qc.QTimer()
+        self.shot_timer.setInterval(16)
+        self.shot_timer.timeout.connect(Shot.handle_all)
+        self.shot_timer.start()
+        
         self.timer = qc.QTimer()
         self.timer.setInterval(50)# ms
         self.timer.timeout.connect(self.handleActiveKeys)
         self.timer.start()
 
 
+
+
         self.active_keys = set()
     
-        self.shot_timer = qc.QTimer()
-        self.shot_timer.setInterval(16)
-        self.shot_timer.timeout.connect(self.player_shot_movement)
-        self.shot_timer.start()
+ 
 
     def addPixmap(self, pixmap):
         transformation = qg.QTransform().scale(1, -1)
@@ -64,36 +76,65 @@ class Window(qw.QWidget):
         self.active_keys.remove(event.key())
     
 
-
-
-    def player_shot_movement(self):
-        if self.player_shot_is_active == True:
-            self.player_shot.setY(self.player_shot.y()+5)
-        if self.player_shot.y() >= self.scene.height():
-            self.player_shot_is_active = False
-            self.player_shot.hide()
-           
-        # check something... ==> player_shot_is_active = False Ist der Schuss Valid
-
     def handleActiveKeys(self):
 
-        print("X:", self.scene.width())
+        #print("X:", self.scene.width())
 
         
         if qc.Qt.Key_D in self.active_keys and self.player.x()+self.img_player.width() < self.scene.width():
             self.player.setX(self.player.x()+5)
         if qc.Qt.Key_A in self.active_keys and self.player.x() > 0:
             self.player.setX(self.player.x()-5)
-        if qc.Qt.Key_Space in self.active_keys and self.player_shot.isVisible() == False:
+        if qc.Qt.Key_Space in self.active_keys:  #attackspeed:
             #self.img_player_shot.width() 
-            self.player_shot.setX(self.player.x()+self.img_player.width()/2 - self.img_player_shot.width()/2) 
-            self.player_shot.setY(self.player.y() + self.img_player_shot.height())
-            self.player_shot.show()
-            self.player_shot.setY(0)
-            self.player_shot_is_active = True
+            new_shot = Shot(self, True) ### shot_timer.ti
+            new_shot.item.setX(self.player.x()+self.img_player.width()/2 - new_shot.img_item.width()/2) 
+            new_shot.item.setY(self.player.y() + new_shot.img_item.height())
+            new_shot.item.show()
+            new_shot.item.setY(0)
+            new_shot.is_active = True
+
+            print("IS_ACTIVE?: ", new_shot.is_active)
+
             
         
+class Shot(object):
 
+
+    
+    
+    def __init__(self, window:Window, player=True):
+        super().__init__()
+        self.is_active = False
+        
+        self.window = window
+        
+        if player == True:
+            self.img_item = qg.QPixmap(str(SPRITES_DIR.joinpath("player_shot.png")))
+        else:
+            self.img_item = qg.QPixmap(str(SPRITES_DIR.joinpath("invader_shot.png")))
+        self.item = window.addPixmap(self.img_item)
+        self.item.hide()
+
+        self.shot_timer.timeout.connect(self.update)
+        
+        
+        print("Step 1")
+    def update(self):
+        print("Step 2")
+        if self.is_active:
+            print("Active!!!!!", self)
+        #if self.is_active == True:
+        if self.item.isVisible() == True:
+            self.item.setY(self.item.y()+5)
+            #print("Step 3")
+        if self.item.y() >= self.window.scene.height():
+            self.is_active = False
+            self.item.hide()
+        
+    @classmethod
+    def handle_all(cls):
+        print("Hello all!!!")
 
 
 
@@ -103,3 +144,23 @@ if __name__ == "__main__":
     window.show()
     
     app.exec_()
+
+
+
+
+  # while True: #main thread
+  #     events = get_event()
+  #     handle_events(events)
+  #     update_gui()
+
+
+  # while True: #timer thread
+  #     handleActiveKeys()
+  #     sleep(50)   #ms
+
+
+
+
+
+#python -m pip inst
+
